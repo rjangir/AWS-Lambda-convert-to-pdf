@@ -17,12 +17,12 @@ exports.handler = async ({ key, bucket }) => {
     console.error(err)
   }
  // bucket = "my-bucket-test";
-  //key  = "tes-file.txt";
+  //key  = "folder/sub-folder/tes-file.txt";
   const s3 = new S3({ params: { Bucket: bucket } });
-
 
   let path = key.substring(0, key.lastIndexOf('/') + 1);
   let filename = key.substring(key.lastIndexOf('/') + 1);
+  
   const { Body: inputFileBuffer } = await s3.getObject({ Key: key }).promise();
   writeFileSync(`/tmp/${filename}`, inputFileBuffer);
 
