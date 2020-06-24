@@ -35,34 +35,26 @@ namespace PdfConvertWebApp.Controllers
             _bucket = aws["Bucket"];
         }
 
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         [HttpPost]
         public async Task<IActionResult> CovertDoc(List<IFormFile> files)
         {
             if (!files.Any()) return View();
             var doc = files[0];
-            var key = doc.FileName;
+            var key = doc.FileName;//key is full folder path on S3 
 
             var utility = new TransferUtility(_s3Client);
             await utility.UploadAsync(doc.OpenReadStream(), _bucket, key);
 
-
             var req = new InvokeRequest
             {
-                FunctionName = "wc-PdfConverter",
+                FunctionName = "your_lambda_funtion_name",
                 Payload = JsonSerializer.Serialize(new { key, bucket = _bucket }),
             };
             var res = await _lambdaClient.InvokeAsync(req);
             using var sr = new StreamReader(res.Payload);
             var resString = await sr.ReadToEndAsync();
-            var pdfKey = JsonSerializer.Deserialize<string>(resString);
+            var pdfKey = JsonSerializer.Deserialize<string>(resString);// my lambda return converted pdf S3 key
             
-
             var preSignedUrlRequest = new GetPreSignedUrlRequest
             {
                 BucketName = _bucket,
@@ -71,10 +63,10 @@ namespace PdfConvertWebApp.Controllers
                 ResponseHeaderOverrides = new ResponseHeaderOverrides()
                 {
                     ContentType = "application/force-download",
-                    ContentDisposition = "attachment;filename=" + pdfKey
+                    ContentDisposition = "attachment;filename=" + "download_file_name"
                 }
             };
-            var preSignedUrl = _s3Client.GetPreSignedURL(preSignedUrlRequest);
+            var preSignedUrl = _s3Client.GetPreSignedURL(preSignedUrlRequest);//downloadable S3 file url 
             
             ViewBag.pdfUrl = preSignedUrl;
             return View("Convert-Pdf");
