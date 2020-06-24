@@ -8,10 +8,13 @@ This solution contains:-
 #2. C# client that uploads a file to S3 and invoked lambda in order to convert the uploaded file into Pdf
 
 Lambda App 
+
     Runtime - Node.js
+    
     Dependecies :
 	#1. @shelf/aws-lambda-libreoffice - NPM package
 	#2. libreoffice - lambda layer 
+	
     Settings:
 	#1. Lambda layer should be added
 	#2. S3 read/write permission 
